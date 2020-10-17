@@ -1,13 +1,13 @@
-const express = require('express');
-const app = express();
 require("dotenv").config();
 
-app.get('/', (req, res) => {  
-	res.json('{message: Hello Heroku! This should be deployed}')
-})
+const app = require("./app");
 
 
-app.listen(process.env.PORT, ()=> {
-	console.log(process.env);
-	console.log("server running on port 4000")
-})
+async function main() {
+  await app.listen(app.get("port"));
+  console.log(`Server started on port ${app.get("port")} 😁`);
+}
+
+main();
+
+
