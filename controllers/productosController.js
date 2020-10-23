@@ -94,7 +94,13 @@ productosController.getProducts = async(req,res) => {
 	INNER JOIN tipos_productos ON tipos_productos.id = productos.id_tipo_producto
 	ORDER BY productos.descripcion	
 	`);
+
+	if (rows.length > 0) {
     res.json({ products: rows });
+  } else {
+    res.json({ error: "No se ha encontrado ningun producto" });
+  }
+    
   } catch (error) {
     console.error(error);
   }

@@ -15,7 +15,12 @@ usuariosController.getUsuarioByID = async (req, res) => {
     const { rows } = await client.query(
       `SELECT * FROM usuarios where id = ${id}`
     );
-    res.json({ user: rows[0] });
+    if(rows.length > 0){
+      res.json({ user: rows[0] });
+    }
+    else {
+      res.json({ message: "No se ha encontrado un usuario con ese ID" });
+    }
   } catch (error) {
     console.error(error);
   }
@@ -25,9 +30,14 @@ usuariosController.authenticateUser = async (req,res) => {
   const {usuario, contrasena} = req.body;
   try {
     const { rows } = await client.query(
-      `SELECT usuario FROM usuarios WHERE usuario = ${usuario} AND contrasena = ${contrasena}`
+      `SELECT usuario FROM usuarios WHERE usuario = '${usuario}' AND contrasena = '${contrasena}'`
     );
-    res.json({ user: rows[0] });
+    if(rows.length > 0){
+      res.json({user: rows[0]})
+    }
+    else{
+      res.json({ error: "Las credenciales son inválidas, intente de nuevo" });
+    }
   } catch (error) {
     console.error(error);
   }
