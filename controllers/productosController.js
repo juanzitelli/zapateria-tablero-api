@@ -26,7 +26,13 @@ productosController.getMostSoldProducts = async (req, res) => {
         				marcas.descripcion,
         				generos.descripcion)
 				ORDER BY id_producto`);
-    res.json({ products: rows });
+    if (rows.length > 0) {
+      res.json({
+        products: rows.sort((a, b) => a.Ventas - b.Ventas).reverse(),
+      });
+    } else {
+      res.json({ error: "No se pudieron obtener los productos mas vendidos" });
+    }
   } catch (error) {
     console.error(error);
   }
@@ -43,7 +49,13 @@ productosController.getMostSoldCategories = async (req, res) => {
 	INNER JOIN lineas_productos on lineas_productos.id_producto = productos.id
 	GROUP BY (tipos_productos.id)
 	`);
-    res.json({ products: rows });
+    if (rows.length > 0) {
+      res.json({
+        categories: rows.sort((a, b) => a.Ventas - b.Ventas).reverse(),
+      });
+    } else {
+      res.json({ error: "No se pudieron obtener las categorías mas vendidas" });
+    }
   } catch (error) {
     console.error(error);
   }
@@ -60,7 +72,11 @@ productosController.getMostSoldBrands = async (req, res) => {
 	INNER JOIN lineas_productos on lineas_productos.id_producto = productos.id
 	GROUP BY (marcas.id)
 	`);
-    res.json({ brands: rows });
+    if (rows.length > 0) {
+      res.json({ brands: rows.sort((a, b) => a.Ventas - b.Ventas).reverse() });
+    } else {
+      res.json({ error: "No se han encontrado marcas" });
+    }
   } catch (error) {
     console.error(error);
   }
@@ -77,15 +93,21 @@ productosController.getMostSoldGenres = async (req, res) => {
 	INNER JOIN lineas_productos on lineas_productos.id_producto = productos.id
 	GROUP BY (generos.id)
 	`);
-    res.json({ genres: rows });
+    if (rows.length > 0) {
+      res.json({
+        genres: rows.sort((a, b) => a.Ventas - b.Ventas).reverse(),
+      });
+    } else {
+      res.json({ error: "No se han encontrado marcas" });
+    }
+    // res.json({ genres: rows });
   } catch (error) {
     console.error(error);
   }
 };
 
-
-productosController.getProducts = async(req,res) => {
-	try {
+productosController.getProducts = async (req, res) => {
+  try {
     const { rows } = await client.query(`
 	SELECT productos.id, productos.descripcion as "Descripcion", precio as "Precio", talle as "Talle", tipos_productos.descripcion as "Categoria", marcas.descripcion as "Marca", generos.descripcion as "Genero"
 	FROM public.productos
@@ -95,14 +117,13 @@ productosController.getProducts = async(req,res) => {
 	ORDER BY productos.descripcion	
 	`);
 
-	if (rows.length > 0) {
-    res.json({ products: rows });
-  } else {
-    res.json({ error: "No se ha encontrado ningun producto" });
-  }
-    
+    if (rows.length > 0) {
+      res.json({ products: rows });
+    } else {
+      res.json({ error: "No se ha encontrado ningun producto" });
+    }
   } catch (error) {
     console.error(error);
   }
-}
+};
 module.exports = productosController;

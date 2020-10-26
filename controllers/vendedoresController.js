@@ -1,8 +1,8 @@
 const { client } = require("./../database");
-vendedoresController = {}
+vendedoresController = {};
 
-vendedoresController.getBestSalespeople = async (req,res) => {
-	try {
+vendedoresController.getBestSalespeople = async (req, res) => {
+  try {
     const { rows } = await client.query(`
 	SELECT DISTINCT ON (vendedores.id) vendedores.id,
 		vendedores.nombre_completo as "Vendedor",
@@ -14,15 +14,21 @@ vendedoresController.getBestSalespeople = async (req,res) => {
 	INNER JOIN productos on lineas_productos.id_producto = productos.id
 	GROUP BY (vendedores.id)
 	`);
-    res.json({ salespeople: rows });
+    if (rows.length > 0) {
+      res.json({
+        salespeople: rows.sort((a, b) => a.Ventas - b.Ventas).reverse(),
+      });
+    } else {
+      res.json({ error: "Las credenciales son inválidas, intente de nuevo" });
+    }
   } catch (error) {
     console.error(error);
   }
-}
+};
 
-vendedoresController.getSales = async (req,res) => {
-	try {
-		const { rows } = await client.query(`
+vendedoresController.getSales = async (req, res) => {
+  try {
+    const { rows } = await client.query(`
 		SELECT
   			vendedores.nombre_completo as "Vendedor", 
 			ventas.fecha as "Fecha",
@@ -34,10 +40,14 @@ vendedoresController.getSales = async (req,res) => {
   		INNER JOIN lineas_productos on lineas_productos_ventas.id_linea_producto = lineas_productos.id
   		INNER JOIN productos on productos.id = lineas_productos.id_producto
 		ORDER BY(vendedores.nombre_completo)`);
-		  res.json({ sales: rows });
-	} catch (error) {
-		console.error(error)
-	}
-}
+    if (rows.length > 0) {
+      res.json({ sales: rows });
+    } else {
+      res.json({ error: "Hubo un error obteniendo las ventas" });
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 module.exports = vendedoresController;
